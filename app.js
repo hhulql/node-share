@@ -10,6 +10,9 @@ var urlencode = require('urlencode');
 
 var path = 'D:/';
 
+/*
+创建web服务器，处理来自浏览器的请求
+*/
 http.createServer(function(req, res){
 	var url = req.url;
 	console.log(url);
@@ -27,12 +30,18 @@ http.createServer(function(req, res){
 	}
 }).listen(3000, "127.0.0.1");
 
+/*
+从请求中提出参数path
+*/
 function getPath(req) {
 	var url_parts = u.parse(req.url, true);
 	var query = url_parts.query;
 	return query.path;
 }
 
+/*
+处理页面中对目录或者文件的点击
+*/
 function click(req, res, path) {
 	console.log('click');
 	var exist = fs.existsSync(path);
@@ -50,6 +59,10 @@ function click(req, res, path) {
 	}
 }
 
+/*
+下载给定的文件
+需确保path对应的是文件
+*/
 function down(req, res, path) {;
 	var filename = path.substring(path.lastIndexOf('/') + 1);
 	console.log(filename);
@@ -67,6 +80,9 @@ function down(req, res, path) {;
 	});
 }
 
+/*
+列出给定目录下的文件和目录
+*/
 function list(req, res, path) {
 	res.writeHead(200, {'Content-Type':'text/html;charset=utf-8'});
 	
@@ -87,25 +103,6 @@ function list(req, res, path) {
 	});
 }
 
-/*读取文件*/
-var fs = require('fs');
-fs.readFile('data.txt', 'utf-8', function(err, data){
-	if (err) throw err;
-	//console.log(data);
-});
-
-/*
-var path = 'D:/tec/node';
-fs.readdir(path, function(err, files){
-	if (err) throw err;
-	
-	for (var i = files.length - 1; i >= 0; i--) {
-		var f = files[i];
-		var href = "<a href='" + path + "/" + f + "' >" + f + "</a>";
-		//console.log(href);
-	};
-});
-*/
 
 
 console.log('Server running at http://127.0.0.1:3000/');
