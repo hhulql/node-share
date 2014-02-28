@@ -7,28 +7,35 @@
 var http = require('http');
 var u = require('url');
 var urlencode = require('urlencode');
-
-var path = 'D:/';
+var fs = require('fs');
 
 /*
 创建web服务器，处理来自浏览器的请求
 */
 http.createServer(function(req, res){
 	var url = req.url;
-	console.log(url);
+	console.log('request url : ' + urlencode.decode(url, 'utf-8'));
+	//共享的根目录
+	var path = getRootDir();
+
 	if (url == '/list') {
-		console.log('list files');
 		list(req, res, path);
 	} else if (url.indexOf('/click') != -1) {
 		var path = getPath(req);
 		click(req, res, path);
 	}else if (url.indexOf('/down') != -1) {
-		console.log('down file');
 		down(req, res, getPath(req));
 	} else {
-		res.end('');
+		res.end();
 	}
 }).listen(3000, "127.0.0.1");
+
+/*
+定义文件共享的根目录
+*/
+function getRootDir() {
+	return 'D:/';
+}
 
 /*
 从请求中提出参数path
@@ -65,7 +72,7 @@ function click(req, res, path) {
 */
 function down(req, res, path) {;
 	var filename = path.substring(path.lastIndexOf('/') + 1);
-	console.log(filename);
+	console.log('download file : ' + filename);
 	res.writeHead(200,{
   		'Content-Type':'application/octet-stream;charset=utf8',
   		'Coneten-Length':fs.statSync(path).size,
@@ -84,6 +91,7 @@ function down(req, res, path) {;
 列出给定目录下的文件和目录
 */
 function list(req, res, path) {
+	console.log('list directory :' + path);
 	res.writeHead(200, {'Content-Type':'text/html;charset=utf-8'});
 	
 	fs.readdir(path, function(err, files){
@@ -102,7 +110,5 @@ function list(req, res, path) {
 		res.end(body);
 	});
 }
-
-
 
 console.log('Server running at http://127.0.0.1:3000/');
