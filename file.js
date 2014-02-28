@@ -1,4 +1,3 @@
-
 /*读取文件*/
 var fs = require('fs');
 fs.readFile('data.txt', 'utf-8', function(err, data){
@@ -6,7 +5,7 @@ fs.readFile('data.txt', 'utf-8', function(err, data){
 	//console.log(data);
 });
 
-/*
+/*读取一个目录，并遍历其中所有的文件*/
 var path = 'D:/tec/node';
 fs.readdir(path, function(err, files){
 	if (err) throw err;
@@ -17,4 +16,3 @@ fs.readdir(path, function(err, files){
 		//console.log(href);
 	};
 });
-*/
