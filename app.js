@@ -15,11 +15,11 @@ var fs = require('fs');
 http.createServer(function(req, res){
 	var url = req.url;
 	console.log('request url : ' + urlencode.decode(url, 'utf-8'));
-	//共享的根目录
-	var path = getRootDir();
 
-	if (url == '/list') {
-		list(req, res, path);
+	if (url == '/' || url == '/list') {
+		var disks = getRootDirs();
+		var html = createListPage(disks);
+		res.end(html);
 	} else if (url.indexOf('/click') != -1) {
 		var path = getPath(req);
 		click(req, res, path);
@@ -29,6 +29,27 @@ http.createServer(function(req, res){
 		res.end();
 	}
 }).listen(3000, "127.0.0.1");
+
+/*
+通过枚举的方式，确定所有的根目录
+*/
+function getRootDirs() {
+	var allDisks = ['A:/', 'B:/', 'C:/', 'D:/', 'E:/', 'F:/', 'G:/'];
+	var existDisks = [];
+	var exist = false;
+
+	for (var i = 0; i < allDisks.length; i++) {
+		exist = fs.existsSync(allDisks[i]);
+		if (exist) {
+			var stats = fs.statSync(allDisks[i]);
+			if (stats.isDirectory(allDisks[i])) {
+				existDisks.push(allDisks[i])
+			}
+		}
+	}
+
+	return existDisks;
+}
 
 /*
 定义文件共享的根目录
@@ -97,18 +118,28 @@ function list(req, res, path) {
 	fs.readdir(path, function(err, files){
 		if (err) throw err;
 
-		var body = '<html><head></head><body>';
-		for (var i = files.length - 1; i >= 0; i--) {
-			var f = files[i];
-			var href = "<a href='click?path=" + path + "/" + f + "' >" + f + "</a><br/>";
-			body += href;
-			//console.log(href);
-		};
-
-		body += '</body></html>';
+		var body = createListPage(files, path);
 
 		res.end(body);
 	});
+}
+
+function createListPage(dirs, path) {
+	var body = '<html><head></head><body>';
+	for (var i = 0; i <= dirs.length - 1; i++) {
+		var f = dirs[i], href = '';
+		if (path) {
+			href = "<a href='click?path=" + path + "/" + f + "' >" + f + "</a><br/>";
+		} else {
+			href = "<a href='click?path=" + f + "' >" + f + "</a><br/>";
+		}
+		 
+		body += href;
+	};
+
+	body += '</body></html>';
+
+	return body;	
 }
 
 console.log('Server running at http://127.0.0.1:3000/');
